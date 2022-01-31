@@ -12,6 +12,12 @@ class MazeSolver
         @row = @maze.index(@starting_line[0])
         @col = @starting_position
 
+        @ending_line = @maze.select { |line| line.include?('E')}
+        @ending_position = @ending_line[0].index('E') 
+        
+        @ending_row = @maze.index(@ending_line[0])
+        @ending_col = @ending_position
+
     end
 
     def try_route
@@ -31,10 +37,10 @@ class MazeSolver
             possible_down = @maze[current_row + 1][current_col]
     
             
-            possible_moves = [ [possible_right,  [current_row, current_col + 1]],
-                        [possible_left, [current_row, current_col - 1]],
-                        [possible_up, [current_row -1, current_col]],
-                        [possible_down, [current_row + 1, current_col]] ]
+            possible_moves = [ [possible_right,  [current_row, current_col + 1], ((current_row - @ending_row).abs + (current_col + 1 - @ending_col).abs) ],
+                        [possible_left, [current_row, current_col - 1],  ((current_row - @ending_row).abs + (current_col-1 - @ending_col).abs) ],
+                        [possible_up, [current_row -1, current_col],  ((current_row -1 - @ending_row).abs + (current_col - @ending_col).abs) ],
+                        [possible_down, [current_row + 1, current_col], ((current_row +1 - @ending_row).abs + (current_col - @ending_col).abs) ] ]
 
             
             if possible_moves.any? { |possible_move| possible_move[0] == ' ' || possible_move[0] == 'E' }
@@ -51,8 +57,9 @@ class MazeSolver
 
 
                 end
-
-                chosen_move = possible_moves.select { |possible_move| possible_move[0] == ' ' && !route.include?(possible_move[1]) }.sample
+                
+                sorted = possible_moves.select { |possible_move| possible_move[0] == ' ' && !route.include?(possible_move[1]) }.sort { |a, b| b[2] <=> a[2] }
+                chosen_move = sorted[-1]
                     if chosen_move == nil
                         self.try_route
                     else
