@@ -2,9 +2,9 @@ require 'byebug'
 
 class MazeSolver
 
-    def initialize
+    def initialize(file_name)
 
-        @maze = File.readlines("maze_sample_3.txt").map(&:chomp)
+        @maze = File.readlines(file_name).map(&:chomp)
 
         @starting_line = @maze.select { |line| line.include?('S')}
         @starting_position = @starting_line[0].index('S')
@@ -70,7 +70,7 @@ class MazeSolver
                             @ending_col = @starting_col
                             if self.try_route('S')
                                 return 
-                            else
+                            elsif @deadends.include?(possible_move[1])
                                 puts 'no route available'
                                 return 
                             end
@@ -99,12 +99,13 @@ class MazeSolver
                 chosen_move = sorted[-1]
                 
                 if chosen_move == nil
-                    @deadends << [@current_row, @current_col]
-                    if @deadends.include?([@current_row, @current_col])
+                    if @maze[@current_row][@current_col] == 'S'
                         @maze.each { |line| puts line }
                         puts 'NO ROUTE AVAILABLE'
-                        return nil
+                        return false
                     end
+
+                    @deadends << [@current_row, @current_col]
                     @route = []
                     @current_row = @starting_row
                     @current_col = @starting_col
@@ -115,12 +116,7 @@ class MazeSolver
                     @current_row, @current_col = chosen_move[1]
                 end
 
-            else
-
-                print 'no route available'
-
             end
-
            
             
         end
@@ -131,4 +127,4 @@ class MazeSolver
 
 end
 
-print MazeSolver.new.try_route()
+print MazeSolver.new('maze_sample_3.txt').try_route()
