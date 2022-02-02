@@ -4,7 +4,7 @@ class MazeSolver
 
     def initialize
 
-        @maze = File.readlines("maze_sample.txt").map(&:chomp)
+        @maze = File.readlines("maze_sample_3.txt").map(&:chomp)
 
         @starting_line = @maze.select { |line| line.include?('S')}
         @starting_position = @starting_line[0].index('S')
@@ -97,9 +97,14 @@ class MazeSolver
                 @available_moves.include?(possible_move[1]) }.sort { |a, b| b[2] <=> a[2] }
                 
                 chosen_move = sorted[-1]
-
+                
                 if chosen_move == nil
                     @deadends << [@current_row, @current_col]
+                    if @deadends.include?([@current_row, @current_col])
+                        @maze.each { |line| puts line }
+                        puts 'NO ROUTE AVAILABLE'
+                        return nil
+                    end
                     @route = []
                     @current_row = @starting_row
                     @current_col = @starting_col
@@ -112,8 +117,7 @@ class MazeSolver
 
             else
 
-                self.try_route(goal)
-                break
+                print 'no route available'
 
             end
 
